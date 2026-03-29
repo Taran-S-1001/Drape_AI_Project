@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from ollama import AsyncClient
 import base64
 
-app = FastAPI()
+app = FastAPI(title="Drape AI")
 
 # Add CORS middleware
 app.add_middleware(
