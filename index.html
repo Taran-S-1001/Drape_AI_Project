@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Recommendation Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #F8F5EF;
+            color: #1A1714;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        /* Left Column - Input Section */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+        }
+
+        /* Image Upload */
+        .upload-zone {
+            border: 2px dashed #B5895A;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: rgba(181, 137, 90, 0.03);
+        }
+
+        .upload-zone:hover {
+            border-color: #1A1714;
+            background-color: rgba(181, 137, 90, 0.08);
+        }
+
+        .upload-zone.has-image {
+            border-color: #B5895A;
+            background-color: transparent;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .upload-text p {
+            font-size: 0.95rem;
+            color: #999;
+        }
+
+        .image-preview {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .image-preview.show {
+            display: block;
+        }
+
+        .image-preview img {
+            width: 100%;
+            border-radius: 8px;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        /* Style Selector */
+        .style-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .style-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            padding: 10px 18px;
+            border: 2px solid #B5895A;
+            background-color: transparent;
+            color: #1A1714;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .chip:hover {
+            background-color: rgba(181, 137, 90, 0.1);
+        }
+
+        .chip.active {
+            background-color: #B5895A;
+            color: #F8F5EF;
+            border-color: #B5895A;
+        }
+
+        /* Occasion Dropdown */
+        .occasion-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #B5895A;
+            border-radius: 8px;
+            background-color: #F8F5EF;
+            color: #1A1714;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231A1714' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        select:hover {
+            border-color: #1A1714;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #1A1714;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            padding: 14px 30px;
+            background-color: #B5895A;
+            color: #F8F5EF;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background-color: #1A1714;
+        }
+
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Right Column - Results Section */
+        .results-section {
+            min-height: 600px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            color: #999;
+        }
+
+        .empty-state.hidden {
+            display: none;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            flex-direction: column;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .dot-pulse {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #B5895A;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* Recommendations Grid */
+        .recommendations {
+            display: none;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .recommendations.show {
+            display: grid;
+        }
+
+        .recommendation-card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .card-title-section {
+            flex: 1;
+        }
+
+        .card-type {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .card-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            margin-bottom: 3px;
+            line-height: 1.2;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .card-colors {
+            margin-bottom: 15px;
+        }
+
+        .colors-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #999;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .color-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .color-swatch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .swatch-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+
+        .swatch-name {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: rgba(181, 137, 90, 0.1);
+            color: #B5895A;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Error State */
+        .error-message {
+            display: none;
+            padding: 20px;
+            background-color: #ffe6e6;
+            border: 1px solid #ffb3b3;
+            border-radius: 8px;
+            color: #b30000;
+            margin-bottom: 20px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Fashion Recommendation Studio</h1>
+            <p>Upload an image and tell us your style to receive personalized clothing recommendations</p>
+        </div>
+
+        <div class="grid">
+            <!-- Left Column: Inputs -->
+            <div class="input-section">
+                <!-- Image Upload -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">
+                        <h3>Upload Your Image</h3>
+                        <p>Drag and drop or click to select</p>
+                    </div>
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" alt="Preview">
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*">
+                </div>
+
+                <!-- Style Selector -->
+                <div class="style-section">
+                    <h3>Your Style</h3>
+                    <div class="style-chips">
+                        <button class="chip" data-style="Classic">Classic</button>
+                        <button class="chip" data-style="Minimalist">Minimalist</button>
+                        <button class="chip" data-style="Streetwear">Streetwear</button>
+                        <button class="chip" data-style="Bohemian">Bohemian</button>
+                        <button class="chip" data-style="Preppy">Preppy</button>
+                        <button class="chip" data-style="Edgy">Edgy</button>
+                        <button class="chip" data-style="Ethnic/Festive">Ethnic/Festive</button>
+                        <button class="chip" data-style="Kurta Casual">Kurta Casual</button>
+                        <button class="chip" data-style="Indo-Western">Indo-Western</button>
+                        <button class="chip" data-style="Saree Drape">Saree Drape</button>
+                        <button class="chip" data-style="Salwar Chic">Salwar Chic</button>
+                        <button class="chip" data-style="Maximalist">Maximalist</button>
+                    </div>
+                </div>
+
+                <!-- Occasion Selector -->
+                <div class="occasion-section">
+                    <h3>Occasion</h3>
+                    <select id="occasionSelect">
+                        <option value="">Select an occasion</option>
+                        <option value="Everyday casual">Everyday casual</option>
+                        <option value="Work/office">Work/office</option>
+                        <option value="Evening out">Evening out</option>
+                        <option value="Date night">Date night</option>
+                        <option value="Weekend brunch">Weekend brunch</option>
+                        <option value="Formal event">Formal event</option>
+                        <option value="Travel/vacation">Travel/vacation</option>
+                        <option value="Festival/Puja">Festival/Puja</option>
+                        <option value="Wedding guest">Wedding guest</option>
+                        <option value="Sangeet/Mehndi">Sangeet/Mehndi</option>
+                        <option value="Diwali party">Diwali party</option>
+                        <option value="Office ethnic day">Office ethnic day</option>
+                        <option value="College/University">College/University</option>
+                        <option value="Gym/Athleisure">Gym/Athleisure</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="submit-btn" id="submitBtn" disabled>Get Recommendations</button>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="results-section">
+                <div class="error-message" id="errorMessage"></div>
+                
+                <div class="empty-state" id="emptyState">
+                    <h2>Ready to get styled?</h2>
+                    <p>Upload an image, select your style, and choose an occasion to begin</p>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="loading-text">Finding perfect recommendations...</div>
+                    <div class="dot-pulse">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+
+                <div class="recommendations" id="recommendations"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let state = {
+            image: null,
+            style: null,
+            occasion: null
+        };
+
+        // DOM Elements
+        const uploadZone = document.getElementById('uploadZone');
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const styleChips = document.querySelectorAll('.chip');
+        const occasionSelect = document.getElementById('occasionSelect');
+        const submitBtn = document.getElementById('submitBtn');
+        const emptyState = document.getElementById('emptyState');
+        const loading = document.getElementById('loading');
+        const recommendations = document.getElementById('recommendations');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Upload zone events
+        uploadZone.addEventListener('click', () => imageInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#1A1714';
+            uploadZone.style.backgroundColor = 'rgba(181, 137, 90, 0.15)';
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = '#B5895A';
+            uploadZone.style.backgroundColor = 'rgba(181, 137, 90, 0.03)';
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#B5895A';
+            uploadZone.style.backgroundColor = 'rgba(181, 137, 90, 0.03)';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageSelect(files[0]);
+            }
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleImageSelect(e.target.files[0]);
+            }
+        });
+
+        function handleImageSelect(file) {
+            if (file.type.startsWith('image/')) {
+                state.image = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.add('show');
+                    uploadZone.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+                updateSubmitButton();
+                closeError();
+            }
+        }
+
+        // Style chip selection
+        styleChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                styleChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                state.style = chip.dataset.style;
+                updateSubmitButton();
+                closeError();
+            });
+        });
+
+        // Occasion selection
+        occasionSelect.addEventListener('change', (e) => {
+            state.occasion = e.target.value;
+            updateSubmitButton();
+            closeError();
+        });
+
+        // Update submit button state
+        function updateSubmitButton() {
+            submitBtn.disabled = !state.image || !state.style || !state.occasion;
+        }
+
+        // Submit form
+        submitBtn.addEventListener('click', async () => {
+            if (!state.image || !state.style || !state.occasion) return;
+
+            closeError();
+            updateUIForLoading();
+
+            const formData = new FormData();
+            formData.append('image', state.image);
+            formData.append('style', state.style);
+            formData.append('occasion', state.occasion);
+
+            try {
+                const response = await fetch('http://localhost:8000/recommend', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    showError(data.error || 'Failed to get recommendations');
+                    updateUIForResults(false);
+                    return;
+                }
+
+                renderRecommendations(data.recommendations);
+                updateUIForResults(true);
+            } catch (error) {
+                showError('Connection error. Make sure the backend is running on http://localhost:8000');
+                updateUIForResults(false);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+
+        function updateUIForLoading() {
+            emptyState.classList.add('hidden');
+            loading.classList.add('show');
+            recommendations.classList.remove('show');
+            submitBtn.disabled = true;
+        }
+
+        function updateUIForResults(hasResults) {
+            loading.classList.remove('show');
+            if (hasResults) {
+                emptyState.classList.add('hidden');
+                recommendations.classList.add('show');
+            } else {
+                emptyState.classList.remove('hidden');
+                recommendations.classList.remove('show');
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function closeError() {
+            errorMessage.classList.remove('show');
+        }
+
+        function renderRecommendations(recs) {
+            recommendations.innerHTML = '';
+            
+            recs.forEach(rec => {
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+                
+                // Build color swatches
+                let colorSwatches = '';
+                if (rec.colors && rec.color_hex) {
+                    colorSwatches = rec.colors.map((color, idx) => {
+                        const hexCode = rec.color_hex[idx] || '#cccccc';
+                        return `
+                            <div class="color-swatch">
+                                <div class="swatch-circle" style="background-color: ${hexCode};"></div>
+                                <span class="swatch-name">${color}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // Build tags
+                let tagHTML = '';
+                if (rec.tags && Array.isArray(rec.tags)) {
+                    tagHTML = rec.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                }
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title-section">
+                            <div class="card-type">${rec.type}</div>
+                            <h2 class="card-name">${rec.name}</h2>
+                        </div>
+                    </div>
+                    <p class="card-description">${rec.description}</p>
+                    ${colorSwatches ? `
+                        <div class="card-colors">
+                            <span class="colors-label">Colors</span>
+                            <div class="color-swatches">${colorSwatches}</div>
+                        </div>
+                    ` : ''}
+                    <div class="card-tags">${tagHTML}</div>
+                `;
+                
+                recommendations.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
